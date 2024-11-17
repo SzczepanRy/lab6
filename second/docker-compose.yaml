@@ -1,0 +1,63 @@
+services:
+  app:
+    build:
+      context: ./app
+      args:
+        ubu_ver: "20.04"
+    image: app:1
+
+    env_file: ./.env
+    #    environment:
+    #    version: ${VERSION}
+    #   project_type: ${PROJECT_TYPE}
+  deb:
+    image: debian:12
+    command: sleep inf
+    deploy:
+      resources:
+        limits:
+          memory: 64MB
+
+          #volumes:
+          #- "./test:/data1"
+          #- "voltest:/voldata"
+    volumes:
+      - type: bind
+        source: ./test
+        target: /data1
+      - type: volume
+        source: voltest
+        target: /voldata
+
+    networks:
+      appnets:
+        ipv4_address: 192.168.20.20
+    depends_on:
+      - web
+
+
+  web:
+    image: nginx
+    ports:
+      - 9999:80
+
+    expose:
+      - 80
+    networks:
+      appnets:
+        ipv4_address: 192.168.20.30
+
+
+
+
+volumes:
+  voltest:
+
+networks:
+  appnets:
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.20.0/24"
+
+
